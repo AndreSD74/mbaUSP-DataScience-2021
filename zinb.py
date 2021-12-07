@@ -28,6 +28,9 @@ from scipy import stats
 import statsmodels.api as sm
 from patsy import dmatrices
 
+# expressao correta que não funciona com patsy dmatrices
+# expr = 'violations ~ corruption + post + staff | corruption'
+
 expr = 'violations ~ corruption + post + staff'
 
 Y, x = dmatrices(expr, paises, return_type='dataframe')
@@ -38,6 +41,7 @@ poisson_model = sm.Poisson(endog=Y, exog=x).fit()
 
 print(poisson_model.summary())
 
+print(poisson_model.predict())
 
 print("ZERO INFLATED POISSON")
 
@@ -63,4 +67,18 @@ zinb_model = sm.ZeroInflatedNegativeBinomialP(endog=Y, exog=x, inflation='logit'
 print(zinb_model.summary())
 
 
+# testando expressao correta com Formula: ainda não está implementado interpretar o | na formula
+# from formulaic import Formula
+# expr = 'violations ~ corruption + post + staff | corruption'
+# Y, x = Formula(expr).get_model_matrix(paises)
 
+from formulae import design_matrices
+
+expr = 'violations ~ corruption + post + staff | corruption'
+dm = design_matrices(expr, paises)
+
+teste1 = dm.common.as_dataframe()
+print(teste1.head())
+# zinb_model = sm.ZeroInflatedNegativeBinomialP(endog=Y, exog=x, inflation='logit', p=2).fit(method="nm", maxiter=50)
+
+# print(zinb_model.summary())
